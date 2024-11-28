@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int              @id @default(autoincrement())
+  auth0Id      String
+  name         String
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  UserRooms    UserRoom[]
+  UserRoomSchedules UserRoomSchedule[]
+  UserRoomGroups UserRoomGroup[]
+}
+
+model Room {
+  id           Int              @id @default(autoincrement())
+  name         String
+  password     String
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  RoomSchedules RoomSchedule[]
+  UserRooms    UserRoom[]
+  RoomGroups   RoomGroup[]
+}
+
+model RoomSchedule {
+  id           Int              @id @default(autoincrement())
+  roomId       Int
+  dayOfWeek    String
+  startTime    String
+  endTime      String
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  Room         Room                @relation(fields: [roomId], references: [id])
+  UserRoomSchedules UserRoomSchedule[]
+}
+
+model UserRoomSchedule {
+  id           Int              @id @default(autoincrement())
+  userId       Int
+  roomId       Int
+  date         String
+  startTime    String
+  endTime      String
+  status       Int
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  User         User                @relation(fields: [userId], references: [id])
+  RoomSchedule RoomSchedule        @relation(fields: [roomId], references: [id])
+}
+
+model UserRoom {
+  id           Int              @id @default(autoincrement())
+  userId       Int
+  roomId       Int
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  User         User                @relation(fields: [userId], references: [id])
+  Room         Room                @relation(fields: [roomId], references: [id])
+}
+
+model RoomGroup {
+  id           Int              @id @default(autoincrement())
+  roomId       Int
+  name         String
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  Room         Room                @relation(fields: [roomId], references: [id])
+  UserRoomGroups UserRoomGroup[]
+}
+
+model UserRoomGroup {
+  id           Int              @id @default(autoincrement())
+  userId       Int
+  roomGroupId  Int
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  User         User                @relation(fields: [userId], references: [id])
+  RoomGroup    RoomGroup           @relation(fields: [roomGroupId], references: [id])
+}
