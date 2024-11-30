@@ -1,9 +1,9 @@
+import { User as Auth0User, useAuth0 } from '@auth0/auth0-react';
 import React, { useEffect, useState } from 'react';
-import { useAuth0, User as Auth0User } from '@auth0/auth0-react';
-import { userContext } from './store/Auth';
-import { User } from './definitions/Auth';
 import { Loading } from './components/myui/Loading';
+import { User } from './definitions/Auth';
 import { UserService } from './services/UserService';
+import { userContext } from './store/Auth';
 
 type ProtectedRouteProps = {
     children: JSX.Element;
@@ -16,7 +16,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         isLoading,
         loginWithRedirect,
     } = useAuth0();
-    const [userState, setUserState] = useState<User | undefined>(undefined);
+    const [userState, setUserState] = useState<User | null>(null);
     const [isUserLoading, setIsUserLoading] = useState(true); // ロード中の状態管理
 
     // ユーザー情報の取得・登録

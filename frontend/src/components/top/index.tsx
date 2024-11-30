@@ -1,17 +1,16 @@
-import { Box, Button, GridItem, SimpleGrid, Text } from '@chakra-ui/react';
-import { useContext } from 'react';
 import { userContext } from '@/store/Auth';
+import { Button, GridItem, SimpleGrid, Text } from '@chakra-ui/react';
+import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Title } from '../myui/Title';
 
 const Top = () => {
     const user = useContext(userContext)!.user;
     const navigate = useNavigate();
 
     return (
-        <Box as="main" m="4" mt={{ base: '20', lg: '20' }} textAlign={'center'}>
-            <Text fontSize="2xl" mb="20">
-                ようこそ, {user.name}さん!
-            </Text>
+        <>
+            <Title title={`ようこそ、${user.name}さん`} />
             <SimpleGrid
                 columns={{ base: 1, lg: 3 }}
                 gap={{ base: 12, lg: 4 }}
@@ -59,7 +58,7 @@ const Top = () => {
                     </Button>
                 </GridItem>
             </SimpleGrid>
-        </Box>
+        </>
     );
 };
 

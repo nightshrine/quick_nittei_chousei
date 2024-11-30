@@ -1,6 +1,6 @@
-import { User, UserPostRequest } from '@/definitions/Auth';
-import { User as Auth0User } from '@auth0/auth0-react';
+import { User, UserPostRequest, UserPutRequest } from '@/definitions/Auth';
 import { ApiService } from '@/services/ApiService';
+import { User as Auth0User } from '@auth0/auth0-react';
 
 /**
  * ユーザーに関する処理を行う
@@ -11,8 +11,8 @@ export class UserService {
      * @param auth0User Auth0のユーザー情報
      * @returns ユーザー情報
      */
-    public static async getUser(auth0Id: string): Promise<User | undefined> {
-        const user = await ApiService.callGetApi<User | undefined>(
+    public static async getUser(auth0Id: string): Promise<User | null> {
+        const user = await ApiService.callGetApi<User | null>(
             `/user/${auth0Id}`
         );
         return user;
@@ -30,11 +30,14 @@ export class UserService {
             return user;
         }
 
-        const newUser = {
-            auth0Id: auth0Id,
-            name: auth0User.name || '',
-        };
-        await ApiService.callPostApi<UserPostRequest>('/user', newUser);
+        const newUser = await ApiService.callPostApi<UserPostRequest, User>(
+            '/user',
+            {
+                auth0Id,
+                name: auth0User.name!,
+            }
+        );
+
         return newUser;
     }
 
@@ -42,11 +45,11 @@ export class UserService {
      * ユーザー名を更新する
      */
     public static async updateUserName(
-        auth0Id: string,
+        id: number,
         name: string
     ): Promise<void> {
-        await ApiService.callPutApi<UserPostRequest>('/user', {
-            auth0Id,
+        await ApiService.callPutApi<UserPutRequest>('/user', {
+            id,
             name,
         });
     }

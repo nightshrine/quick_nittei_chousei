@@ -1,25 +1,19 @@
-import {
-    Box,
-    Button,
-    GridItem,
-    Input,
-    SimpleGrid,
-    Text,
-} from '@chakra-ui/react';
-import Logout from '../myui/Logout';
-import { useContext, useState } from 'react';
-import { userContext } from '@/store/Auth';
 import { UserService } from '@/services/UserService';
+import { userContext } from '@/store/Auth';
+import { Box, Editable, IconButton, Text } from '@chakra-ui/react';
+import { useContext, useState } from 'react';
+import { LuCheck, LuPencilLine, LuX } from 'react-icons/lu';
+import Logout from '../myui/Logout';
 import { toaster } from '../ui/toaster';
 
 export default function Settings() {
-    const [newName, setNewName] = useState('');
     const user = useContext(userContext)!.user;
     const setUserName = useContext(userContext)!.setUserName;
+    const [newName, setNewName] = useState(user.name);
 
-    const updateUserName = async () => {
+    const updateUserName = async (newName: string) => {
         setUserName(newName);
-        await UserService.updateUserName(user.auth0Id, newName);
+        await UserService.updateUserName(user.id, newName);
         toaster.create({
             title: `名前を「${newName}」に変更しました`,
             type: 'success',
@@ -27,30 +21,52 @@ export default function Settings() {
     };
 
     return (
-        <Box as="main" m="4" mt={{ base: '20', lg: '20' }}>
-            <Box w={{ base: '100%', lg: '50%' }} m="auto" p="4">
+        <>
+            <Text fontSize="2xl" mb="20" textAlign="center">
+                設定画面
+            </Text>
+            <Box
+                w={{ base: '90%', lg: '50%' }}
+                m="auto"
+                p="4"
+                borderWidth="2px"
+                borderColor="fg"
+                borderRadius="md"
+            >
                 <Text fontSize="xl" fontWeight="bold" mb="4">
                     名前変更
                 </Text>
-                <SimpleGrid columns={5} gap={4} mb="8">
-                    <GridItem colSpan={4}>
-                        <Input
-                            placeholder="名前"
-                            value={newName}
-                            onChange={(e) => setNewName(e.target.value)}
-                        />
-                    </GridItem>
-                    <GridItem colSpan={1}>
-                        <Button colorScheme="teal" onClick={updateUserName}>
-                            保存
-                        </Button>
-                    </GridItem>
-                </SimpleGrid>
+                <Editable.Root
+                    value={newName}
+                    onValueChange={(e) => setNewName(e.value)}
+                    onValueCommit={() => updateUserName(newName)}
+                    mb="4"
+                >
+                    <Editable.Preview />
+                    <Editable.Input />
+                    <Editable.Control>
+                        <Editable.EditTrigger asChild>
+                            <IconButton variant="ghost" size="xs">
+                                <LuPencilLine />
+                            </IconButton>
+                        </Editable.EditTrigger>
+                        <Editable.CancelTrigger asChild>
+                            <IconButton variant="outline" size="xs">
+                                <LuX />
+                            </IconButton>
+                        </Editable.CancelTrigger>
+                        <Editable.SubmitTrigger asChild>
+                            <IconButton variant="outline" size="xs">
+                                <LuCheck />
+                            </IconButton>
+                        </Editable.SubmitTrigger>
+                    </Editable.Control>
+                </Editable.Root>
                 <Text fontSize="xl" fontWeight="bold" mb="4">
                     ログアウト
                 </Text>
                 <Logout />
             </Box>
-        </Box>
+        </>
     );
 }

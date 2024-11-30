@@ -21,13 +21,13 @@ export class ApiService {
     /**
      * POST APIを実行
      */
-    public static async callPostApi<T>(url: string, data: T): Promise<void> {
+    public static async callPostApi<T, U>(url: string, data: T): Promise<U> {
         return axios
             .post(GetEnvService.getBaseApiUrl() + url, data, {
                 headers: { 'Content-Type': 'application/json' },
             })
-            .then((response: AxiosResponse<void>) => {
-                console.log(response);
+            .then((response: AxiosResponse<U>) => {
+                return response.data;
             })
             .catch((error) => {
                 throw new Error(error);
