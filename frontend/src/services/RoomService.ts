@@ -1,4 +1,8 @@
-import { RoomPutRequest } from '@/definitions/Room';
+import {
+    IsJoinRoomRequest,
+    JoinRoomRequest,
+    RoomPutRequest,
+} from '@/definitions/Room';
 import { ApiService } from '@/services/ApiService';
 
 /**
@@ -46,5 +50,42 @@ export class RoomService {
             name,
             password,
         });
+    }
+
+    /**
+     * 部屋に入室する
+     */
+    public static async joinRoom(
+        userId: number,
+        name: string,
+        password: string
+    ): Promise<number> {
+        const roomId = await ApiService.callPostApi<JoinRoomRequest, number>(
+            '/room/join',
+            {
+                userId,
+                name,
+                password,
+            }
+        );
+        return roomId;
+    }
+
+    /**
+     * 部屋に入っているか確認する
+     */
+    public static async isJoinRoom(
+        userId: number,
+        roomId: number
+    ): Promise<boolean> {
+        const isJoinRoom = await ApiService.callPostApi<
+            IsJoinRoomRequest,
+            boolean
+        >('/room/is-join', {
+            userId,
+            roomId,
+        });
+
+        return isJoinRoom;
     }
 }

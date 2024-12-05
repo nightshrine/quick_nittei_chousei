@@ -1,6 +1,7 @@
 import { RoomService } from '@/services/RoomService';
+import { userContext } from '@/store/Auth';
 import { Box, Button, Fieldset, Input } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Title } from '../myui/Title';
 import { Field } from '../ui/field';
@@ -10,25 +11,31 @@ import { toaster } from '../ui/toaster';
 export default function JoinRoom() {
     const [roomName, setRoomName] = useState('');
     const [password, setPassword] = useState('');
+    const user = useContext(userContext)!.user;
 
     const navigate = useNavigate();
 
-    const createRoom = async (roomName: string, password: string) => {
-        const isExistRoom = await RoomService.isExistRoom(roomName);
-        if (isExistRoom) {
+    const joinRoom = async (
+        userId: number,
+        roomName: string,
+        password: string
+    ): Promise<void> => {
+        const roomId = await RoomService.joinRoom(userId, roomName, password);
+        // TODO: エラー判定とかを用いた方が良い
+        if (roomId === -1) {
             toaster.create({
-                title: `部屋「${roomName}」は既に存在します`,
+                title: `部屋「${roomName}」に入室できませんでした。部屋が存在しないか、パスワードが間違っています`,
                 type: 'error',
             });
             return;
         }
 
-        await RoomService.postRoom(roomName, password);
         toaster.create({
-            title: `部屋「${roomName}」を作成しました`,
+            title: `部屋「${roomName}」に入室しました`,
             type: 'success',
         });
-        navigate('/');
+
+        navigate(`/room/${roomId}`);
     };
 
     return (
@@ -63,7 +70,7 @@ export default function JoinRoom() {
                     <Button
                         type="submit"
                         alignSelf="flex-start"
-                        onClick={() => createRoom(roomName, password)}
+                        onClick={() => joinRoom(user.id, roomName, password)}
                     >
                         部屋入室
                     </Button>

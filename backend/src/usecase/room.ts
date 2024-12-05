@@ -62,3 +62,80 @@ export const updateRoomName = async (
     });
     return updatedRoom;
 };
+
+/**
+ * 部屋に入室しているか確認
+ */
+export const isJoinRoom = async (
+    userId: number,
+    roomId: number,
+    env: Bindings
+): Promise<boolean> => {
+    const prisma = db(env);
+    const room = await prisma.userRoom.findFirst({
+        where: {
+            userId: {
+                equals: userId,
+            },
+            roomId: {
+                equals: roomId,
+            },
+        },
+    });
+    if (!room) {
+        return false;
+    }
+    return true;
+};
+
+/**
+ * ユーザーの部屋入室情報に登録
+ */
+const postUserRoom = async (
+    userId: number,
+    roomId: number,
+    env: Bindings
+): Promise<void> => {
+    const isJoin = await isJoinRoom(userId, roomId, env);
+
+    if (isJoin) {
+        return;
+    }
+
+    const prisma = db(env);
+    await prisma.userRoom.create({
+        data: {
+            userId: userId,
+            roomId: roomId,
+        },
+    });
+};
+
+/**
+ * 部屋に入室する
+ */
+export const joinRoom = async (
+    userId: number,
+    name: string,
+    password: string,
+    env: Bindings
+): Promise<number> => {
+    const prisma = db(env);
+    const room = await prisma.room.findFirst({
+        where: {
+            name: {
+                equals: name,
+            },
+            password: {
+                equals: password,
+            },
+        },
+    });
+    if (!room) {
+        return -1;
+    }
+
+    await postUserRoom(userId, room.id, env);
+
+    return room.id;
+};
